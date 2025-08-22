@@ -54,11 +54,11 @@
          <EnvironmentVariable
             key = "OPENAI_API_KEY"
             value = "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"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "ANTHROPIC_API_KEY"
-            value = "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"
+            value = "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"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

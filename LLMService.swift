@@ -67,8 +67,12 @@ class LLMService {
     }
 
     private func fetchFromAnthropic(book: String, author: String, completion: @escaping (String?) -> Void) {
-        // TODO: Remove hardcoded API key before deploying
-        let apiKey = "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" // Get a key from console.anthropic.com
+        guard let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] else {
+            print("⚠️ Anthropic API key not found in environment variables")
+            print("ℹ️ Set ANTHROPIC_API_KEY in your Xcode scheme's environment variables")
+            completion("Configuration Error: API key not found. Please set ANTHROPIC_API_KEY in Xcode scheme.")
+            return
+        }
         
         // Debug logging
         print("🔑 API Key Debug:")
