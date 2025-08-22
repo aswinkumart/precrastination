@@ -1,130 +1,192 @@
 import Foundation
 import Alamofire
 
-enum LLMProvider {
-    case openAI, llama, anthropic, gpt5
+// MARK: - Response Structures
+
+struct AnthropicResponse: Decodable {
+    let id: String
+    let type: String
+    let role: String
+    let content: [ContentBlock]
+    let model: String
+    let stopReason: String?
+    let stopSequence: String?
+    let usage: Usage?
+    
+    struct ContentBlock: Decodable {
+        let type: String
+        let text: String
+    }
+    
+    struct Usage: Decodable {
+        let inputTokens: Int?
+        let outputTokens: Int?
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, type, role, content, model
+        case stopReason = "stop_reason"
+        case stopSequence = "stop_sequence"
+        case usage
+    }
+}
+
+struct AnthropicError: Decodable {
+    let error: ErrorDetail
+    
+    struct ErrorDetail: Decodable {
+        let type: String
+        let message: String
+    }
 }
 
 class LLMService {
     static let shared = LLMService()
+    private let session: Session
+    private let retrier = ConnectionRetrier()
+    private let eventMonitor = NetworkEventMonitor()
     
-    func fetchSummary(for book: String, author: String, completion: @escaping (String?) -> Void) {
-        let group = DispatchGroup()
-        var summaries: [String] = []
-
-        // OpenAI GPT-5
-        group.enter()
-        fetchFromGPT5(book: book, author: author) { summary in
-            if let summary = summary { summaries.append(summary) }
-            group.leave()
-        }
-
-        // Anthropic Claude
-        group.enter()
+    init() {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 300
+        configuration.waitsForConnectivity = true
+        configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        
+        self.session = Session(
+            configuration: configuration,
+            interceptor: retrier,
+            eventMonitors: [eventMonitor]
+        )
+    }
+    
+    func fetchSummary(for book: String = "Atomic Habits", author: String = "James Clear", completion: @escaping (String?) -> Void) {
         fetchFromAnthropic(book: book, author: author) { summary in
-            if let summary = summary { summaries.append(summary) }
-            group.leave()
+            completion(summary ?? "Failed to generate summary. Please check your internet connection and API key.")
         }
-
-        // OpenAI GPT-4 (optional, can remove if only want GPT-5)
-        group.enter()
-        fetchFromOpenAI(book: book, author: author) { summary in
-            if let summary = summary { summaries.append(summary) }
-            group.leave()
-        }
-
-        // Llama (Meta)
-        group.enter()
-        fetchFromLlama(book: book, author: author) { summary in
-            if let summary = summary { summaries.append(summary) }
-            group.leave()
-        }
-
-        group.notify(queue: .main) {
-            // Consolidate summaries (simple join, you can use LLM to merge)
-            let consolidated = summaries.joined(separator: "\n\n")
-            completion(consolidated)
-        }
-    }
-    
-    private func fetchFromOpenAI(book: String, author: String, completion: @escaping (String?) -> Void) {
-        let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] ?? ""
-        let url = "https://api.openai.com/v1/chat/completions"
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer \(apiKey)",
-            "Content-Type": "application/json"
-        ]
-        let prompt = "Summarize the book '\(book)' by \(author) in less than 5 minutes of spoken audio."
-        let params: [String: Any] = [
-            "model": "gpt-4",
-            "messages": [["role": "user", "content": prompt]],
-            "max_tokens": 1024
-        ]
-        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
-            .responseDecodable(of: [String: Any].self) { response in
-                if let dict = response.value,
-                   let choices = dict["choices"] as? [[String: Any]],
-                   let message = choices.first?["message"] as? [String: Any],
-                   let content = message["content"] as? String {
-                    completion(content)
-                } else {
-                    completion(nil)
-                }
-            }
-    }
-
-    private func fetchFromGPT5(book: String, author: String, completion: @escaping (String?) -> Void) {
-        let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] ?? ""
-        let url = "https://api.openai.com/v1/chat/completions"
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer \(apiKey)",
-            "Content-Type": "application/json"
-        ]
-        let prompt = "Summarize the book '\(book)' by \(author) in less than 5 minutes of spoken audio."
-        let params: [String: Any] = [
-            "model": "gpt-5",
-            "messages": [["role": "user", "content": prompt]],
-            "max_tokens": 2048
-        ]
-        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
-            .responseDecodable(of: [String: Any].self) { response in
-                if let dict = response.value,
-                   let choices = dict["choices"] as? [[String: Any]],
-                   let message = choices.first?["message"] as? [String: Any],
-                   let content = message["content"] as? String {
-                    completion(content)
-                } else {
-                    completion(nil)
-                }
-            }
     }
 
     private func fetchFromAnthropic(book: String, author: String, completion: @escaping (String?) -> Void) {
-        let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] ?? ""
+        // TODO: Remove hardcoded API key before deploying
+        let apiKey = "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" // Get a key from console.anthropic.com
+        
+        // Debug logging
+        print("🔑 API Key Debug:")
+        print("  Length: \(apiKey.count) characters")
+        
+        // Validate API key
+        guard !apiKey.isEmpty else {
+            print("⚠️ Anthropic API key not found")
+            completion("Configuration Error: API key not found. Please get a key from console.anthropic.com")
+            return
+        }
+        
+        print("✅ API Key validation passed")
         let url = "https://api.anthropic.com/v1/messages"
         let headers: HTTPHeaders = [
             "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
             "Content-Type": "application/json"
         ]
         let prompt = "Summarize the book '\(book)' by \(author) in less than 5 minutes of spoken audio."
         let params: [String: Any] = [
-            "model": "claude-3-opus-20240229", // or latest
-            "max_tokens": 2048,
-            "messages": [["role": "user", "content": prompt]]
+            "model": "claude-3-haiku-20240307",
+            "max_tokens": 500,
+            "messages": [
+                [
+                    "role": "user",
+                    "content": [
+                        [
+                            "type": "text",
+                            "text": prompt
+                        ]
+                    ]
+                ]
+            ]
         ]
-        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
-            .responseDecodable(of: [String: Any].self) { response in
-                if let dict = response.value,
-                   let content = (dict["content"] as? [[String: Any]])?.first?["text"] as? String {
-                    completion(content)
-                } else {
-                    completion(nil)
+        
+        // Debug: Print request details
+        print("📡 Request Debug:")
+        print("  URL: \(url)")
+        print("  Headers:")
+        print("    x-api-key: [HIDDEN]")
+        print("    anthropic-version: \(headers["anthropic-version"] ?? "none")")
+        print("    Content-Type: \(headers["Content-Type"] ?? "none")")
+        print("  Parameters:")
+        print("    Model: \(params["model"] as? String ?? "none")")
+        print("    Max Tokens: \(params["max_tokens"] as? Int ?? 0)")
+        
+        session.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
+            .validate()
+            .responseDecodable(of: AnthropicResponse.self) { response in
+                switch response.result {
+                case .success(let anthropicResponse):
+                    let summary = anthropicResponse.content.first?.text
+                    completion(summary)
+                case .failure(let error):
+                    print("❌ Anthropic API Error: \(error.localizedDescription)")
+                    
+                    // Parse and handle specific API errors
+                    if let data = response.data,
+                       let apiError = try? JSONDecoder().decode(AnthropicError.self, from: data) {
+                        
+                        let errorMessage: String
+                        switch (response.response?.statusCode, apiError.error.type) {
+                        case (429, _):
+                            errorMessage = "Rate limit exceeded. Please try again in a few moments."
+                        case (401, _):
+                            errorMessage = "Authentication failed. Please verify your API key."
+                        case (400, _):
+                            errorMessage = "Invalid request: \(apiError.error.message)"
+                        default:
+                            errorMessage = "An error occurred: \(apiError.error.message)"
+                        }
+                        
+                        print("📝 Detailed error: \(apiError.error.message)")
+                        completion(errorMessage)
+                    } else {
+                        // Network or other non-API errors
+                        completion("Network error: \(error.localizedDescription)")
+                    }
                 }
             }
     }
+}
+
+// MARK: - Network Support
+
+class ConnectionRetrier: RequestInterceptor {
+    func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+        let statusCode = (request.response?.statusCode ?? 0)
+        
+        // Retry on network errors, rate limits (429), or 5xx server errors
+        if let error = error.asAFError,
+           error.isSessionTaskError || statusCode == 429 || (500...599).contains(statusCode) {
+            
+            let retryCount = request.retryCount
+            if retryCount < 3 { // Maximum 3 retries
+                // Exponential backoff: 2s, 4s, 8s for rate limits, 1s, 2s, 4s for other errors
+                let baseDelay = statusCode == 429 ? 2.0 : 1.0
+                let delay = pow(2.0, Double(retryCount)) * baseDelay
+                completion(.retryWithDelay(delay))
+                return
+            }
+        }
+        
+        completion(.doNotRetry)
+    }
+}
+
+class NetworkEventMonitor: EventMonitor {
+    func request(_ request: Request, didCreateURLRequest urlRequest: URLRequest) {
+        print("📡 Starting Request: \(urlRequest.url?.absoluteString ?? "unknown")")
+    }
     
-    private func fetchFromLlama(book: String, author: String, completion: @escaping (String?) -> Void) {
-        // Replace with your Llama API endpoint and key
-        completion(nil) // Placeholder
+    func request(_ request: Request, didCompleteTask task: URLSessionTask, with error: Error?) {
+        if let error = error {
+            print("❌ Request failed: \(error.localizedDescription)")
+        } else {
+            print("✅ Request completed: \(request.description)")
+        }
     }
 }

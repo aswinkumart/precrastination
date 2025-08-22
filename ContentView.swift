@@ -1,13 +1,44 @@
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     @State private var bookTitle = ""
     @State private var author = ""
     @State private var summary = ""
     @State private var isLoading = false
+    @State private var errorMessage: String?
     @ObservedObject private var audioService = AudioService.shared
     @State private var selectedVoice: AVSpeechSynthesisVoice?
     @State private var rate: Float = 0.5
+    
+    private func generateSummary() {
+        isLoading = true
+        errorMessage = nil
+        print("🔍 Starting summary generation for '\(bookTitle)' by \(author)")
+        
+        LLMService.shared.fetchSummary(for: bookTitle, author: author) { result in
+            DispatchQueue.main.async {
+                isLoading = false
+                if let result = result {
+                    summary = result
+                    print("✅ Summary generated successfully")
+                } else {
+                    errorMessage = "Failed to generate summary. Please check your API keys and internet connection."
+                    print("❌ Failed to generate summary")
+                }
+            }
+        }
+    }
+    
+    private func playAudio() {
+        guard !summary.isEmpty else {
+            errorMessage = "No summary available to play"
+            return
+        }
+        
+        print("🔊 Playing audio with voice: \(selectedVoice?.name ?? "default") at rate: \(rate)")
+        audioService.play(text: summary, voice: selectedVoice, rate: rate)
+    }
     
     var body: some View {
         NavigationView {
@@ -17,18 +48,24 @@ struct ContentView: View {
                 TextField("Author", text: $author)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 Button("Summarize & Generate Audio") {
-                    isLoading = true
-                    LLMService.shared.fetchSummary(for: bookTitle, author: author) { result in
-                        summary = result ?? "No summary found."
-                        isLoading = false
-                    }
+                    generateSummary()
                 }
                 .disabled(bookTitle.isEmpty || author.isEmpty)
+                
                 if isLoading {
                     ProgressView()
+                        .scaleEffect(1.5)
+                        .padding()
                 }
+                
+                if let error = errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .padding()
+                }
+                
                 ScrollView {
-                    Text(summary)
+                    Text(summary.isEmpty ? "Summary will appear here" : summary)
                         .padding()
                 }
                 HStack {
@@ -48,9 +85,10 @@ struct ContentView: View {
                         if audioService.isPlaying {
                             audioService.stop()
                         } else {
-                            audioService.play(text: summary, voice: selectedVoice, rate: rate)
+                            playAudio()
                         }
                     }
+                    .disabled(summary.isEmpty)
                     .padding()
                 }
             }
