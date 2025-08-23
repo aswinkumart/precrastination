@@ -115,6 +115,7 @@ struct ContentView: View {
                                             .font(.title2)
                                             .padding(8)
                                     }
+                                    // Stop preserves playback position by default (no UI toggle)
                                 }
                             }
 
@@ -123,14 +124,19 @@ struct ContentView: View {
                                 // Voice picker
                                 Menu {
                                     ForEach(AudioService.shared.availableVoices(), id: \.name) { voice in
-                                        Button(voice.name) {
+                                        Button("\(voice.name) (\(voice.language))") {
                                             audioService.currentVoice = voice
                                         }
                                     }
                                 } label: {
                                     HStack {
-                                        Text(audioService.currentVoice?.name ?? "Voice")
-                                            .font(.subheadline)
+                                        if let v = audioService.currentVoice {
+                                            Text("\(v.name) (\(v.language))")
+                                                .font(.subheadline)
+                                        } else {
+                                            Text("Voice")
+                                                .font(.subheadline)
+                                        }
                                         Image(systemName: "chevron.down")
                                             .font(.caption)
                                     }
