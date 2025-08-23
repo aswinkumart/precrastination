@@ -7,12 +7,14 @@ let package = Package(
     name: "precrastination",
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.8.0")
+    , .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0")
     ],
     targets: [
         .executableTarget(
             name: "precrastination",
             dependencies: [
-                "Alamofire"
+        "Alamofire",
+        .product(name: "Kingfisher", package: "Kingfisher")
             ]
         ),
     ]

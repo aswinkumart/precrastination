@@ -7,4 +7,6 @@ struct Book: Identifiable {
     let coverURL: URL?
     let summary: String
     let audioURL: URL?
+    let featured: Bool = false
 }
+

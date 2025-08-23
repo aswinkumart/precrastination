@@ -11,8 +11,13 @@
 		1234567890ABCDF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE1 /* ContentView.swift */; };
 		1234567890ABCDF1 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE2 /* AudioService.swift */; };
 		1234567890ABCDF2 /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE3 /* LLMService.swift */; };
-		1234567890ABCDF3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE4 /* Models.swift */; };
-		CED9EBB12E55555600B66F6A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = ABCDEF12345678A /* Alamofire */; };
+        
+	CED9EBB12E55555600B66F6A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = ABCDEF12345678A /* Alamofire */; };
+	CED9EBB32E5A484C00B66F6A /* BookTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED9EBB22E5A484B00B66F6A /* BookTileView.swift */; };
+	CED9EBB42E5A484C00B66F6B /* Models/Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED9EBB42E5A484B00B66F6B /* Models/Book.swift */; };
+	CED9EBB52E5A484C00B66F6C /* BlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED9EBB52E5A484B00B66F6C /* BlurView.swift */; };
+		CED9EBB62E5A484C00B66F6D /* CoverFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED9EBB62E5A484B00B66F6D /* CoverFetcher.swift */; };
+		CED9EBB72E5A484C00B66F6E /* CachedImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED9EBB72E5A484B00B66F6E /* CachedImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,8 +25,13 @@
 		1234567890ABCDE1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1234567890ABCDE2 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
 		1234567890ABCDE3 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
-		1234567890ABCDE4 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		1234567890ABCDE5 /* HeadwayClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadwayClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+        
+	1234567890ABCDE5 /* HeadwayClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadwayClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+	CED9EBB22E5A484B00B66F6A /* BookTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookTileView.swift; sourceTree = "<group>"; };
+	CED9EBB42E5A484B00B66F6B /* Models/Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Book.swift; sourceTree = "<group>"; };
+	CED9EBB52E5A484B00B66F6C /* BlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurView.swift; sourceTree = "<group>"; };
+		CED9EBB62E5A484B00B66F6D /* CoverFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverFetcher.swift; sourceTree = "<group>"; };
+		CED9EBB72E5A484B00B66F6E /* CachedImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,11 +49,16 @@
 		1234567890ABCDF5 /* . */ = {
 			isa = PBXGroup;
 			children = (
+				CED9EBB22E5A484B00B66F6A /* BookTileView.swift */,
 				1234567890ABCDE0 /* HeadwayCloneApp.swift */,
 				1234567890ABCDE1 /* ContentView.swift */,
 				1234567890ABCDE2 /* AudioService.swift */,
 				1234567890ABCDE3 /* LLMService.swift */,
-				1234567890ABCDE4 /* Models.swift */,
+				CED9EBB42E5A484B00B66F6B /* Models/Book.swift */,
+				CED9EBB52E5A484B00B66F6C /* BlurView.swift */,
+				CED9EBB62E5A484B00B66F6D /* CoverFetcher.swift */,
+				CED9EBB72E5A484B00B66F6E /* CachedImageView.swift */,
+                
 			);
 			path = .;
 			sourceTree = "<group>";
@@ -128,10 +143,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				1234567890ABCDEF /* HeadwayCloneApp.swift in Sources */,
+				CED9EBB32E5A484C00B66F6A /* BookTileView.swift in Sources */,
 				1234567890ABCDF0 /* ContentView.swift in Sources */,
 				1234567890ABCDF1 /* AudioService.swift in Sources */,
 				1234567890ABCDF2 /* LLMService.swift in Sources */,
-				1234567890ABCDF3 /* Models.swift in Sources */,
+				CED9EBB42E5A484C00B66F6B /* Models/Book.swift in Sources */,
+				CED9EBB52E5A484C00B66F6C /* BlurView.swift in Sources */,
+				CED9EBB62E5A484C00B66F6D /* CoverFetcher.swift in Sources */,
+				CED9EBB72E5A484C00B66F6E /* CachedImageView.swift in Sources */,
+				
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

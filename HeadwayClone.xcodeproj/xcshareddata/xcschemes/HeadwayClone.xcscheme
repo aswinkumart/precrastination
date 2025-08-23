@@ -58,7 +58,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "ANTHROPIC_API_KEY"
-            value = "sk"
+            value = "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"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

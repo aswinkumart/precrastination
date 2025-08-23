@@ -4,6 +4,7 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     static let shared = AudioService()
     private let synthesizer = AVSpeechSynthesizer()
     @Published var isPlaying = false
+    @Published var isPaused = false
     @Published var currentVoice: AVSpeechSynthesisVoice?
     @Published var rate: Float = 0.5
     
@@ -42,7 +43,8 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     
     func play(text: String, voice: AVSpeechSynthesisVoice?, rate: Float) {
         print("🎯 Attempting to play text with length: \(text.count)")
-        stop()
+    stop()
+    isPaused = false
         
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = voice ?? AVSpeechSynthesisVoice(language: "en-US")
@@ -59,6 +61,29 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
         isPlaying = false
+        isPaused = false
+    }
+
+    func pause() {
+        guard synthesizer.isSpeaking else { return }
+        synthesizer.pauseSpeaking(at: .word)
+        isPaused = true
+        isPlaying = false
+    }
+
+    func resume() {
+        guard synthesizer.isPaused else { return }
+        synthesizer.continueSpeaking()
+        isPaused = false
+        isPlaying = true
+    }
+
+    func togglePause() {
+        if isPaused {
+            resume()
+        } else {
+            pause()
+        }
     }
     
     func availableVoices() -> [AVSpeechSynthesisVoice] {
