@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1234567890ABCDEF /* HeadwayCloneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE0 /* HeadwayCloneApp.swift */; };
+		1234567890ABCDEF /* PrecrastinationApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE0 /* PrecrastinationApp.swift */; };
 		1234567890ABCDF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE1 /* ContentView.swift */; };
 		1234567890ABCDF1 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE2 /* AudioService.swift */; };
 		1234567890ABCDF2 /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234567890ABCDE3 /* LLMService.swift */; };
@@ -21,12 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1234567890ABCDE0 /* HeadwayCloneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadwayCloneApp.swift; sourceTree = "<group>"; };
+		1234567890ABCDE0 /* PrecrastinationApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrecrastinationApp.swift; sourceTree = "<group>"; };
 		1234567890ABCDE1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1234567890ABCDE2 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
 		1234567890ABCDE3 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
         
-	1234567890ABCDE5 /* HeadwayClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadwayClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1234567890ABCDE5 /* Precrastination.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Precrastination.app; sourceTree = BUILT_PRODUCTS_DIR; };
 	CED9EBB22E5A484B00B66F6A /* BookTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookTileView.swift; sourceTree = "<group>"; };
 	CED9EBB42E5A484B00B66F6B /* Models/Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Book.swift; sourceTree = "<group>"; };
 	CED9EBB52E5A484B00B66F6C /* BlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurView.swift; sourceTree = "<group>"; };
@@ -50,7 +50,7 @@
 			isa = PBXGroup;
 			children = (
 				CED9EBB22E5A484B00B66F6A /* BookTileView.swift */,
-				1234567890ABCDE0 /* HeadwayCloneApp.swift */,
+				1234567890ABCDE0 /* PrecrastinationApp.swift */,
 				1234567890ABCDE1 /* ContentView.swift */,
 				1234567890ABCDE2 /* AudioService.swift */,
 				1234567890ABCDE3 /* LLMService.swift */,
@@ -66,7 +66,7 @@
 		1234567890ABCDF6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1234567890ABCDE5 /* HeadwayClone.app */,
+				1234567890ABCDE5 /* Precrastination.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,9 +82,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1234567890ABCDF8 /* HeadwayClone */ = {
+			1234567890ABCDF8 /* Precrastination */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1234567890ABCDF9 /* Build configuration list for PBXNativeTarget "HeadwayClone" */;
+			buildConfigurationList = 1234567890ABCDF9 /* Build configuration list for PBXNativeTarget "Precrastination" */;
 			buildPhases = (
 				1234567890ABCDFA /* Sources */,
 				1234567890ABCDF4 /* Frameworks */,
@@ -93,12 +93,12 @@
 			);
 			dependencies = (
 			);
-			name = HeadwayClone;
+			name = Precrastination;
 			packageProductDependencies = (
 				ABCDEF12345678A /* Alamofire */,
 			);
-			productName = HeadwayClone;
-			productReference = 1234567890ABCDE5 /* HeadwayClone.app */;
+			productName = Precrastination;
+			productReference = 1234567890ABCDE5 /* Precrastination.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -116,7 +116,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1234567890ABCDFC /* Build configuration list for PBXProject "HeadwayClone" */;
+			buildConfigurationList = 1234567890ABCDFC /* Build configuration list for PBXProject "Precrastination" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -132,7 +132,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1234567890ABCDF8 /* HeadwayClone */,
+				1234567890ABCDF8 /* Precrastination */,
 			);
 		};
 /* End PBXProject section */
@@ -142,7 +142,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1234567890ABCDEF /* HeadwayCloneApp.swift in Sources */,
+				1234567890ABCDEF /* PrecrastinationApp.swift in Sources */,
 				CED9EBB32E5A484C00B66F6A /* BookTileView.swift in Sources */,
 				1234567890ABCDF0 /* ContentView.swift in Sources */,
 				1234567890ABCDF1 /* AudioService.swift in Sources */,
@@ -180,7 +180,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aswin.HeadwayClone;
+					PRODUCT_BUNDLE_IDENTIFIER = com.aswin.precrastination;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -330,7 +330,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aswin.HeadwayClone;
+					PRODUCT_BUNDLE_IDENTIFIER = com.aswin.precrastination;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -342,7 +342,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1234567890ABCDF9 /* Build configuration list for PBXNativeTarget "HeadwayClone" */ = {
+		1234567890ABCDF9 /* Build configuration list for PBXNativeTarget "Precrastination" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1234567890ABCDFF /* Debug */,
@@ -351,7 +351,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1234567890ABCDFC /* Build configuration list for PBXProject "HeadwayClone" */ = {
+		1234567890ABCDFC /* Build configuration list for PBXProject "Precrastination" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1234567890ABCDFD /* Debug */,

@@ -92,10 +92,11 @@ class LLMService {
             "anthropic-version": "2023-06-01",
             "Content-Type": "application/json"
         ]
-        let prompt = "Summarize the book '\(book)' by \(author) in less than 5 minutes of spoken audio."
+        let prompt = "Summarize the book '\(book)' by \(author) in approximately 10.1 minutes of spoken audio."
         let params: [String: Any] = [
             "model": "claude-3-haiku-20240307",
-            "max_tokens": 500,
+            // Increased token budget to support a longer (~10.1 minute) spoken summary
+            "max_tokens": 1800,
             "messages": [
                 [
                     "role": "user",

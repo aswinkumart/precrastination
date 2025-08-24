@@ -8,19 +8,36 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     @Published var isPlaying = false
     @Published var isPaused = false
     @Published var currentVoice: AVSpeechSynthesisVoice?
-    @Published var rate: Float = 0.5
+    // Default rate mapped to a 1-10 scale: 3/10 -> 0.3
+    @Published var rate: Float = 0.3
     /// When true, calling `stop()` will preserve the current sentence index so playback
     /// resumes from the same position; otherwise stop resets to the start.
-    @Published var preservePositionOnStop: Bool = true
+    static let preservePositionKey = "AudioService.preservePositionOnStop.v1"
+    @Published var preservePositionOnStop: Bool = false {
+        didSet {
+            UserDefaults.standard.set(preservePositionOnStop, forKey: Self.preservePositionKey)
+        }
+    }
 
     // Internal queueing for sentence-level playback to support mid-playback rate changes
     private var sentences: [String] = []
     private var currentSentenceIndex: Int = 0
     private var currentText: String = ""
+    // Set when stop() is called so delegate callbacks know to ignore auto-advances
+    private var wasStopped: Bool = false
+    // Snapshot of settings at pause time so resume can decide whether to continue mid-utterance
+    private var pausedRateSnapshot: Float?
+    private var pausedVoiceSnapshot: (name: String, language: String)?
     
     override init() {
         super.init()
         synthesizer.delegate = self
+        // Load persisted setting for preservePositionOnStop; default false (Stop restarts)
+        if let _ = UserDefaults.standard.object(forKey: Self.preservePositionKey) {
+            self.preservePositionOnStop = UserDefaults.standard.bool(forKey: Self.preservePositionKey)
+        } else {
+            self.preservePositionOnStop = false
+        }
         
         // Choose a human-like default voice from preferred list
         if let preferred = preferredVoices().first {
@@ -41,6 +58,12 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         DispatchQueue.main.async {
+            // If we were stopped, don't auto-advance
+            if self.wasStopped {
+                self.wasStopped = false
+                return
+            }
+
             // Move to next sentence if present
             self.currentSentenceIndex += 1
             if self.currentSentenceIndex < self.sentences.count {
@@ -62,6 +85,7 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     func play(text: String, voice: AVSpeechSynthesisVoice?, rate: Float) {
         print("🎯 Attempting to play text with length: \(text.count)")
     stop()
+    wasStopped = false
     isPaused = false
 
     // Prepare sentence-level queue
@@ -86,7 +110,13 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
         isPlaying = false
         isPaused = false
 
+    // Clear any paused snapshot when stopping
+    pausedRateSnapshot = nil
+    pausedVoiceSnapshot = nil
+
         let keepPosition = preservePosition ?? preservePositionOnStop
+    // Mark as stopped to avoid delegate auto-advancing
+    wasStopped = true
     if keepPosition {
             // Keep currentText and currentSentenceIndex so playback can resume where it left off.
             if currentText.isEmpty {
@@ -119,6 +149,14 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
                 self.synthesizer.pauseSpeaking(at: .word)
             }
         }
+        // Capture snapshot of current settings so resume can decide behavior
+        pausedRateSnapshot = rate
+        if let v = currentVoice {
+            pausedVoiceSnapshot = (name: v.name, language: v.language)
+        } else {
+            pausedVoiceSnapshot = nil
+        }
+
         isPaused = true
         isPlaying = false
     }
@@ -127,14 +165,31 @@ class AudioService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     // Allow resume when either AVSpeechSynthesizer isPaused or our flag is true.
     guard synthesizer.isPaused || isPaused else { return }
 
-        // To ensure rate/voice changes made while paused are applied, stop the
-        // current utterance and re-speak the current sentence with the latest settings.
-        DispatchQueue.main.async {
-            self.synthesizer.stopSpeaking(at: .immediate)
-            self.speakNextSentence()
+        // If the synthesizer itself is paused and the user hasn't changed voice or rate,
+        // resume mid-utterance for a natural resume. Otherwise restart the current sentence
+        // with the new settings.
+    let currentSnapshot = currentVoice.map { (name: $0.name, language: $0.language) }
+    // Compare components explicitly to avoid depending on tuple Equatable conformance
+    let voiceUnchanged = (pausedVoiceSnapshot?.name == currentSnapshot?.name) && (pausedVoiceSnapshot?.language == currentSnapshot?.language)
+    let canContinueMidUtterance = synthesizer.isPaused && pausedRateSnapshot == rate && voiceUnchanged
+
+        if canContinueMidUtterance {
+            DispatchQueue.main.async {
+                self.synthesizer.continueSpeaking()
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.synthesizer.stopSpeaking(at: .immediate)
+                self.speakNextSentence()
+            }
         }
-    isPaused = false
-    isPlaying = true
+
+        // Clear pause snapshot after resuming
+        pausedRateSnapshot = nil
+        pausedVoiceSnapshot = nil
+
+        isPaused = false
+        isPlaying = true
     }
 
     func togglePause() {

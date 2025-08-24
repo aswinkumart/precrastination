@@ -1,10 +1,3 @@
-import SwiftUI
+// Legacy app entry removed. See `PrecrastinationApp.swift` for the @main entry.
 
-@main
-struct HeadwayCloneApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
+import Foundation
